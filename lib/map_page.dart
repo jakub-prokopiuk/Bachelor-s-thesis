@@ -11,21 +11,21 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  LatLng? _currentLocation; // To store the user's current location
-  bool _locationError = false; // To handle location errors
+  LatLng? _currentLocation;
+  bool _locationError = false;
+  late MapController _mapController;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation(); // Fetch the current location when the app starts
+    _getCurrentLocation();
+    _mapController = MapController();
   }
 
-  // Function to request permission and get current location
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        // Location services are not enabled
         setState(() {
           _locationError = true;
         });
@@ -35,29 +35,47 @@ class _MapPageState extends State<MapPage> {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        // Location permissions are denied
         setState(() {
           _locationError = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are denied')),
-        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')),
+          );
+        }
         return;
       }
 
-      // Get the current location
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
 
-      // Set the current location
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-      });
+      if (mounted) {
+        setState(() {
+          _currentLocation = LatLng(position.latitude, position.longitude);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _locationError = true; // If there was an error while fetching location
-      });
+      if (mounted) {
+        setState(() {
+          _locationError = true;
+        });
+      }
     }
+  }
+
+  void _getVisibleBounds() {
+    LatLngBounds bounds = _mapController.camera.visibleBounds;
+
+    LatLng northEast = bounds.northEast;
+    LatLng southWest = bounds.southWest;
+
+    debugPrint("Visible bounds:");
+    debugPrint("Northeast: (${northEast.latitude}, ${northEast.longitude})");
+    debugPrint("Southwest: (${southWest.latitude}, ${southWest.longitude})");
   }
 
   @override
@@ -73,10 +91,15 @@ class _MapPageState extends State<MapPage> {
                   child: CircularProgressIndicator(),
                 )
               : FlutterMap(
+                  mapController: _mapController,
                   options: MapOptions(
-                    initialCenter:
-                        _currentLocation!, // Center map on user's location
+                    initialCenter: _currentLocation!,
                     initialZoom: 17.0,
+                    onPositionChanged: (position, hasGesture) {
+                      if (hasGesture) {
+                        _getVisibleBounds();
+                      }
+                    },
                   ),
                   children: [
                     TileLayer(
