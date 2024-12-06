@@ -70,12 +70,12 @@ class _MapPageState extends State<MapPage> {
   void _getVisibleBounds() {
     LatLngBounds bounds = _mapController.camera.visibleBounds;
 
-    LatLng northEast = bounds.northEast;
-    LatLng southWest = bounds.southWest;
+    LatLng northWest = bounds.northWest;
+    LatLng southEast = bounds.southEast;
 
     debugPrint("Visible bounds:");
-    debugPrint("Northeast: (${northEast.latitude}, ${northEast.longitude})");
-    debugPrint("Southwest: (${southWest.latitude}, ${southWest.longitude})");
+    debugPrint("Nortwest: (${northWest.latitude}, ${northWest.longitude})");
+    debugPrint("Southeast: (${southEast.latitude}, ${southEast.longitude})");
   }
 
   @override
