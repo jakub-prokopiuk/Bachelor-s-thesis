@@ -34,7 +34,7 @@ def test_already_added_charger_to_favorites(access_token):
     )
     
     assert response.status_code == 409
-    assert response.json() == {"detail": "Charger already added to favorites"}
+    assert response.json() == {"detail": "Charger already in to favorites"}
 
 def test_adding_non_existing_charger(access_token):
     response = client.post(
