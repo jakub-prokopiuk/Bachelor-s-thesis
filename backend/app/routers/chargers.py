@@ -11,6 +11,28 @@ router = APIRouter()
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.tomtom.com/search/2/chargingAvailability.json"
 
+from math import radians, cos, sin, sqrt, atan2
+from typing import Optional
+
+# Funkcja do obliczania odległości między dwoma punktami geograficznymi (w kilometrach)
+def calculate_distance(lat1, lon1, lat2, lon2):
+    # Promień Ziemi w kilometrach
+    R = 6371.0
+
+    lat1_rad = radians(lat1)
+    lon1_rad = radians(lon1)
+    lat2_rad = radians(lat2)
+    lon2_rad = radians(lon2)
+
+    dlon = lon2_rad - lon1_rad
+    dlat = lat2_rad - lat1_rad
+
+    a = sin(dlat / 2)**2 + cos(lat1_rad) * cos(lat2_rad) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c  # wynik w kilometrach
+    return distance
+
 @router.get("/chargers/")
 def get_chargers(
     northEast_latitude: float,
@@ -48,6 +70,45 @@ def get_chargers(
         raise HTTPException(status_code=404, detail="No chargers found with the specified filters.")
     
     return chargers
+
+@router.get("/closest-chargers/")
+def get_chargers(
+    user_latitude: Optional[float] = None,
+    user_longitude: Optional[float] = None,
+    min_power: float = Query(None, description="Minimal power of the connector (in kW)"),
+    max_power: float = Query(None, description="Maximal power of the connector (in kW)"),
+    connector_types: list[str] = Query(None, description="List of connector types (e.g., 'Type2', 'CCS', 'CHAdeMO')"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(EVCharger)
+
+    if min_power is not None or max_power is not None or connector_types is not None:
+        query = query.join(Connector)
+
+    if min_power is not None:
+        query = query.filter(Connector.rated_power_kw >= min_power)
+    if max_power is not None:
+        query = query.filter(Connector.rated_power_kw <= max_power)
+
+    if connector_types is not None:
+        query = query.filter(Connector.connector_type.in_(connector_types))
+
+    chargers = query.all()
+
+    if not chargers:
+        raise HTTPException(status_code=404, detail="No chargers found with the specified filters.")
+
+    if user_latitude is not None and user_longitude is not None:
+        chargers_with_distance = []
+        for charger in chargers:
+            distance = calculate_distance(user_latitude, user_longitude, charger.latitude, charger.longitude)
+            chargers_with_distance.append((charger, distance))
+
+        chargers_with_distance.sort(key=lambda x: x[1])
+
+        return [charger for charger, _ in chargers_with_distance]
+    else:
+        return chargers
 
 
 @router.get("/charging-status/{charger_id}")

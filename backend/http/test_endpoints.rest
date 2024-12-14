@@ -54,6 +54,11 @@ GET http://127.0.0.1:8000/api/chargers/?northEast_latitude=50.0&northEast_longit
 
 ###
 
+# Closest chargers
+GET http://localhost:8000/api/closest-chargers?user_latitude=52.2002384&user_longitude=20.8789867
+
+###
+
 # add to favorites
 
 POST http://127.0.0.1:8000/api/favorites/

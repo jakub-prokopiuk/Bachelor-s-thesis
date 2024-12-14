@@ -4,6 +4,7 @@ import 'map_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,6 +45,11 @@ class _LoginPageState extends State<LoginPage> {
           const SnackBar(content: Text('Invalid username or password')),
         );
       } else if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = responseBody['access_token'];
+        await prefs.setString('access_token', accessToken);
+
+        // Przejdź do MapPage
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MapPage()),

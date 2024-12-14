@@ -13,12 +13,11 @@ class WelcomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(
-              Icons.flash_on, // Example icon as the logo
+              Icons.flash_on,
               size: 100,
               color: Colors.blue,
             ),
             const SizedBox(height: 40),
-            // Sign Up button
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -29,7 +28,6 @@ class WelcomePage extends StatelessWidget {
               child: const Text('Sign Up'),
             ),
             const SizedBox(height: 16),
-            // Login button, navigates to the LoginPage
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
