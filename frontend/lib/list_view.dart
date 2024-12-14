@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'filter_view.dart';
 
 class Charger {
   final String id;
@@ -46,6 +47,7 @@ class _ChargerListViewState extends State<ChargerListView> {
 
   double? minPower;
   double? maxPower;
+  String? connectorType;
 
   @override
   void initState() {
@@ -90,8 +92,26 @@ class _ChargerListViewState extends State<ChargerListView> {
       throw Exception('User location is not available');
     }
 
-    final response = await http.get(Uri.parse(
-        '${dotenv.env['API_URL']}/api/closest-chargers?user_latitude=$userLatitude&user_longitude=$userLongitude'));
+    final queryParams = <String, String>{};
+
+    queryParams['user_latitude'] = userLatitude.toString();
+    queryParams['user_longitude'] = userLongitude.toString();
+
+    if (minPower != null) {
+      queryParams['min_power'] = minPower.toString();
+    }
+    if (maxPower != null) {
+      queryParams['max_power'] = maxPower.toString();
+    }
+    if (connectorType != null && connectorType!.isNotEmpty) {
+      queryParams['connector_types'] = connectorType!;
+    }
+
+    final uri = Uri.parse('${dotenv.env['API_URL']}/api/chargers').replace(
+      queryParameters: queryParams,
+    );
+
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -206,53 +226,27 @@ class _ChargerListViewState extends State<ChargerListView> {
     }
   }
 
-  void _showFilterDialog() async {
-    double? tempMinPower = minPower;
-    double? tempMaxPower = maxPower;
-
-    showDialog(
+  void _showFilterDialog() {
+    showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Filter Chargers'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Min Power (kW)'),
-                onChanged: (value) {
-                  tempMinPower = double.tryParse(value);
-                },
-              ),
-              TextField(
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Max Power (kW)'),
-                onChanged: (value) {
-                  tempMaxPower = double.tryParse(value);
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  minPower = tempMinPower;
-                  maxPower = tempMaxPower;
-                  _chargers = fetchChargers(userLatitude, userLongitude);
-                });
-                Navigator.of(context).pop();
-              },
-              child: const Text('Apply'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
+        return FilterWidget(
+          onApply:
+              (double minPower, double maxPower, List<String>? connectorTypes) {
+            setState(() {
+              this.minPower = minPower;
+              this.maxPower = maxPower;
+              if (connectorTypes != null && connectorTypes.isNotEmpty) {
+                this.connectorType = connectorTypes.join(',');
+              } else {
+                this.connectorType = null;
+              }
+              _chargers = fetchChargers(userLatitude, userLongitude);
+            });
+          },
         );
       },
     );
@@ -278,26 +272,9 @@ class _ChargerListViewState extends State<ChargerListView> {
                     itemCount: chargers.length,
                     itemBuilder: (context, index) {
                       final charger = chargers[index];
-
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 16),
-                        leading: Icon(
-                          Icons.ev_station,
-                          color: Colors.green,
-                        ),
-                        title: Text(
-                          charger.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        subtitle: Text(
-                          charger.freeformAddress,
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        tileColor: Colors.grey[100],
+                        title: Text(charger.name),
+                        subtitle: Text(charger.freeformAddress),
                         trailing: IconButton(
                           icon: Icon(
                             charger.isFavorite
@@ -305,34 +282,24 @@ class _ChargerListViewState extends State<ChargerListView> {
                                 : Icons.favorite_border,
                             color: charger.isFavorite ? Colors.red : null,
                           ),
-                          onPressed: () async {
+                          onPressed: () {
                             setState(() {
                               charger.toggleFavorite();
                             });
-
-                            await _toggleFavorite(
-                                charger.id, charger.isFavorite);
+                            _toggleFavorite(charger.id, charger.isFavorite);
                           },
                         ),
-                        onTap: () {
-                          //TODO Navigate to charger details
-                        },
                       );
                     },
-                    separatorBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Divider(
-                        color: Colors.grey[300],
-                        height: 1,
-                      ),
-                    ),
+                    separatorBuilder: (context, index) {
+                      return const Divider();
+                    },
                   );
                 }
               },
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showFilterDialog,
-        tooltip: 'Filter Chargers',
         child: const Icon(Icons.filter_list),
       ),
     );
