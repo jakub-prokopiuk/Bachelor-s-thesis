@@ -63,7 +63,6 @@ def get_charging_status(
     if not charger.charging_availability:
         raise HTTPException(status_code=400, detail="Charging availability not found for this charger")
 
-    # Budujemy URL do zapytania do API
     url = f"{BASE_URL}?key={API_KEY}&chargingAvailability={charger.charging_availability}"
 
     try:
