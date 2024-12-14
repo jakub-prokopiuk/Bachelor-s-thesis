@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'forgot_password.dart';
 import 'map_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,22 +13,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    String email = _emailController.text;
+  Future<void> _login() async {
+    String username = _usernameController.text;
     String password = _passwordController.text;
 
-    // TODO ADD CONNECTION TO DATABASE
-    if (email == "jd" && password == "jd") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MapPage()),
-      );
-    } else {
+    if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid email or password')),
+        const SnackBar(content: Text('Username and password are required')),
+      );
+      return;
+    }
+
+    try {
+      final url = Uri.parse('${dotenv.env['API_URL']}/api/login');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+      final responseBody = jsonDecode(response.body);
+      if (!mounted) return;
+      if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid username or password')),
+        );
+      } else if (response.statusCode == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MapPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${responseBody['detail']}')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
       );
     }
   }
@@ -42,9 +72,9 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
-              controller: _emailController,
+              controller: _usernameController,
               decoration: const InputDecoration(
-                labelText: 'Email',
+                labelText: 'Username',
                 border: OutlineInputBorder(),
               ),
             ),
