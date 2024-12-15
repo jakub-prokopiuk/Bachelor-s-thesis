@@ -234,15 +234,18 @@ class _ChargerListViewState extends State<ChargerListView> {
       ),
       builder: (context) {
         return FilterWidget(
-          onApply:
-              (double minPower, double maxPower, List<String>? connectorTypes) {
+          minPower: minPower ?? 0.0,
+          maxPower: maxPower,
+          selectedConnectorTypes: connectorType?.split(',') ?? [],
+          onApply: (double minPower, double? maxPower,
+              List<String>? connectorTypes) {
             setState(() {
               this.minPower = minPower;
               this.maxPower = maxPower;
               if (connectorTypes != null && connectorTypes.isNotEmpty) {
-                this.connectorType = connectorTypes.join(',');
+                connectorType = connectorTypes.join(',');
               } else {
-                this.connectorType = null;
+                connectorType = null;
               }
               _chargers = fetchChargers(userLatitude, userLongitude);
             });

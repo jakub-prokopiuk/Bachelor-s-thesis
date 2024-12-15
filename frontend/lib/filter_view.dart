@@ -1,11 +1,77 @@
 import 'package:flutter/material.dart';
 
+class FilterScreen extends StatefulWidget {
+  const FilterScreen({super.key});
+
+  @override
+  _FilterScreenState createState() => _FilterScreenState();
+}
+
+class _FilterScreenState extends State<FilterScreen> {
+  double minPower = 0;
+  double? maxPower;
+  List<String> selectedConnectorTypes = [];
+
+  void openFilterDialog() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return FilterWidget(
+          minPower: minPower,
+          maxPower: maxPower,
+          selectedConnectorTypes: selectedConnectorTypes,
+          onApply: (updatedMinPower, updatedMaxPower, updatedConnectorTypes) {
+            Navigator.of(context).pop({
+              'minPower': updatedMinPower,
+              'maxPower': updatedMaxPower,
+              'connectorTypes': updatedConnectorTypes,
+            });
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        minPower = result['minPower'];
+        maxPower = result['maxPower'];
+        selectedConnectorTypes = result['connectorTypes'] ?? [];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Filter Example'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: openFilterDialog,
+          child: const Text('Open Filters'),
+        ),
+      ),
+    );
+  }
+}
+
 class FilterWidget extends StatefulWidget {
-  final Function(double minPower, double maxPower, List<String>? connectorTypes)
-      onApply;
+  final double minPower;
+  final double? maxPower;
+  final List<String> selectedConnectorTypes;
+  final Function(
+    double minPower,
+    double? maxPower,
+    List<String>? connectorTypes,
+  ) onApply;
 
   const FilterWidget({
     super.key,
+    required this.minPower,
+    required this.maxPower,
+    required this.selectedConnectorTypes,
     required this.onApply,
   });
 
@@ -14,9 +80,9 @@ class FilterWidget extends StatefulWidget {
 }
 
 class _FilterWidgetState extends State<FilterWidget> {
-  double minPower = 0;
-  double maxPower = 100;
-  List<String> selectedConnectorTypes = [];
+  late double minPower;
+  late double? maxPower;
+  late List<String> selectedConnectorTypes;
 
   final List<Map<String, dynamic>> connectorTypes = [
     {
@@ -50,6 +116,14 @@ class _FilterWidgetState extends State<FilterWidget> {
       'dbValue': 'IEC62196Type2CCS',
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    minPower = widget.minPower;
+    maxPower = widget.maxPower;
+    selectedConnectorTypes = List<String>.from(widget.selectedConnectorTypes);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,21 +164,24 @@ class _FilterWidgetState extends State<FilterWidget> {
                 Column(
                   children: [
                     Slider(
-                      value: maxPower,
+                      value: maxPower ?? 100,
                       min: 0,
                       max: 100,
                       divisions: 10,
-                      label: maxPower == 100
+                      label: maxPower == null
                           ? '>100'
-                          : maxPower.toStringAsFixed(0),
+                          : maxPower!.toStringAsFixed(0),
                       onChanged: (value) {
                         setState(() {
-                          maxPower = (value / 10).roundToDouble() * 10;
+                          maxPower = value == 100
+                              ? null
+                              : (value / 10).roundToDouble() * 10;
                         });
                       },
                     ),
                     Text(
-                        maxPower == 100 ? '>100' : maxPower.toStringAsFixed(0)),
+                      maxPower == null ? '>100' : maxPower!.toStringAsFixed(0),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -197,7 +274,7 @@ class _FilterWidgetState extends State<FilterWidget> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
             ),
             child: const Text(
