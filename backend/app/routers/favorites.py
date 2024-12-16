@@ -43,9 +43,17 @@ def get_favorites(
     if not favorites:
         raise HTTPException(status_code=404, detail="No favorite chargers found.")
     
-    chargers = [{"charger_id": favorite.charger.id} for favorite in favorites]
+    chargers = []
+    for favorite in favorites:
+        charger = favorite.charger
+        chargers.append({
+            "charger_id": charger.id,
+            "name": charger.name,
+            "freeform_address": charger.freeform_address,
+        })
     
     return chargers
+
 
 
 @router.delete("/favorites/{charger_id}")

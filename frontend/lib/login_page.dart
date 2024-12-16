@@ -49,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
         final accessToken = responseBody['access_token'];
         await prefs.setString('access_token', accessToken);
 
-        // Przejdź do MapPage
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MapPage()),
