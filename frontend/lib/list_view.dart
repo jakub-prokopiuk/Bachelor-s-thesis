@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'filter_view.dart';
+import 'charger_details_view.dart';
 
 class Charger {
   final String id;
@@ -258,6 +259,7 @@ class _ChargerListViewState extends State<ChargerListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: userLatitude == null || userLongitude == null
           ? const Center(child: CircularProgressIndicator())
           : FutureBuilder<List<Charger>>(
@@ -283,7 +285,7 @@ class _ChargerListViewState extends State<ChargerListView> {
                             charger.isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: charger.isFavorite ? Colors.red : null,
+                            color: Colors.red,
                           ),
                           onPressed: () {
                             setState(() {
@@ -292,6 +294,15 @@ class _ChargerListViewState extends State<ChargerListView> {
                             _toggleFavorite(charger.id, charger.isFavorite);
                           },
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ChargerDetailsView(chargerId: charger.id),
+                            ),
+                          );
+                        },
                       );
                     },
                     separatorBuilder: (context, index) {

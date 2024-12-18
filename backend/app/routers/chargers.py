@@ -71,6 +71,32 @@ def get_chargers(
         return [charger for charger, _ in chargers_with_distance]
     else:
         return chargers
+    
+@router.get("/chargers/{charger_id}")
+def get_charger_details(charger_id: int, db: Session = Depends(get_db)):
+    charger = db.query(EVCharger).filter(EVCharger.id == charger_id).first()
+
+    if not charger:
+        raise HTTPException(status_code=404, detail="Charger not found")
+
+    charger_data = {
+        "name": charger.name,
+        "url": charger.url,
+        "latitude": charger.latitude,
+        "longitude": charger.longitude,
+        "freeform_address": charger.freeform_address,
+        "charging_availability": charger.charging_availability,
+        "connectors": [
+            {
+                "connector_type": connector.connector_type,
+                "rated_power_kw": connector.rated_power_kw,
+                "current_type": connector.current_type,
+            }
+            for connector in charger.connectors
+        ],
+    }
+
+    return charger_data
 
 @router.get("/charging-status/{charger_id}")
 def get_charging_status(
