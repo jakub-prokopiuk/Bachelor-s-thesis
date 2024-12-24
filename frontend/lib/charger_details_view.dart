@@ -293,10 +293,10 @@ class FavoriteButton extends StatefulWidget {
   final bool initialFavorite;
 
   const FavoriteButton({
-    Key? key,
+    super.key,
     required this.chargerId,
     required this.initialFavorite,
-  }) : super(key: key);
+  });
 
   @override
   _FavoriteButtonState createState() => _FavoriteButtonState();

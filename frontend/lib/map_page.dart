@@ -22,6 +22,8 @@ class _MapPageState extends State<MapPage> {
   bool _locationError = false;
   late MapController _mapController;
   List<Map<String, dynamic>> _chargers = [];
+  List<Map<String, dynamic>> _searchResults = [];
+  TextEditingController _searchController = TextEditingController();
 
   double? minPower;
   double? maxPower;
@@ -127,6 +129,40 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  Future<void> _searchAddress(String query) async {
+    final uri = Uri.parse('https://nominatim.openstreetmap.org/search')
+        .replace(queryParameters: {
+      'q': query,
+      'format': 'json',
+      'addressdetails': '1',
+      'limit': '3',
+      'countrycodes': 'pl',
+    });
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _searchResults = data.map((result) {
+          return {
+            'display_name': result['display_name'],
+            'latitude': double.parse(result['lat']),
+            'longitude': double.parse(result['lon']),
+          };
+        }).toList();
+      });
+    }
+  }
+
+  void _centerMapOnSearchResult(LatLng location) {
+    _mapController.move(location, 17.0);
+    setState(() {
+      _searchResults.clear();
+      _searchController.clear();
+    });
+  }
+
   void _centerMapOnLocation() {
     if (_currentLocation != null) {
       _mapController.move(_currentLocation!, 17.0);
@@ -194,6 +230,12 @@ class _MapPageState extends State<MapPage> {
                       options: MapOptions(
                         initialCenter: _currentLocation!,
                         initialZoom: 17.0,
+                        onTap: (_, __) {
+                          setState(() {
+                            _searchResults.clear();
+                          });
+                          FocusScope.of(context).unfocus();
+                        },
                       ),
                       children: [
                         TileLayer(
@@ -205,18 +247,18 @@ class _MapPageState extends State<MapPage> {
                           markers: _chargers.map((charger) {
                             return Marker(
                               point: LatLng(
-                                  charger['latitude'], charger['longitude']),
+                                charger['latitude'],
+                                charger['longitude'],
+                              ),
                               width: 40.0,
                               height: 40.0,
                               child: GestureDetector(
                                 onTap: () {
-                                  // Przechodzimy do widoku szczegółów ładowarki
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ChargerDetailsView(
-                                        chargerId: charger['id']
-                                            .toString(), // Przekazujemy ID ładowarki
+                                        chargerId: charger['id'].toString(),
                                       ),
                                     ),
                                   );
@@ -226,9 +268,102 @@ class _MapPageState extends State<MapPage> {
                               ),
                             );
                           }).toList(),
-                        )
+                        ),
                       ],
                     ),
+          Positioned(
+            top: 48,
+            left: 16,
+            right: 16,
+            child: Column(
+              children: [
+                Opacity(
+                  opacity: 0.6,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search for an address',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchResults.clear();
+                                });
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        _searchAddress(value);
+                      } else {
+                        setState(() {
+                          _searchResults.clear();
+                        });
+                      }
+                    },
+                  ),
+                ),
+                if (_searchResults.isNotEmpty)
+                  Container(
+                    margin: EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: _searchResults.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final result = _searchResults[index];
+                        return ListTile(
+                          title: Text(
+                            result['display_name'],
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w500),
+                          ),
+                          onTap: () {
+                            _centerMapOnSearchResult(LatLng(
+                              result['latitude'],
+                              result['longitude'],
+                            ));
+                          },
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
           Positioned(
             right: 16,
             bottom: 16,
