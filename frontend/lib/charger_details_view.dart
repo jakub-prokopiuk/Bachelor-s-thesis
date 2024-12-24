@@ -49,8 +49,6 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
     },
   ];
 
-  bool isFavorite = false;
-
   Future<Map<String, dynamic>> fetchChargerDetails(String chargerId) async {
     final response = await http.get(
       Uri.parse('${dotenv.env['API_URL']}/api/chargers/$chargerId'),
@@ -160,85 +158,29 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
     );
   }
 
-  Future<void> _addToFavorites(String chargerId) async {
+  Future<List<String>> _getFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
 
     if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
-      return;
+      return [];
     }
 
-    final response = await http.post(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: json.encode({
-        'charger_id': chargerId,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger added to favorites')),
-      );
-      setState(() {
-        isFavorite = true;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to favorites')),
-      );
-    }
-  }
-
-  Future<void> _removeFromFavorites(String chargerId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
-      return;
-    }
-
-    final response = await http.delete(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites/$chargerId'),
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
       headers: {
         'Authorization': 'Bearer $accessToken',
       },
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger removed from favorites')),
-      );
-      setState(() {
-        isFavorite = false;
-      });
+      final List<dynamic> favorites = json.decode(response.body);
+      return favorites
+          .map((favorite) => favorite['charger_id'].toString())
+          .toList();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove from favorites')),
-      );
+      return [];
     }
-  }
-
-  Future<void> _toggleFavorite(String chargerId, bool isFavorite) async {
-    if (isFavorite) {
-      await _removeFromFavorites(chargerId);
-    } else {
-      await _addToFavorites(chargerId);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -299,16 +241,18 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            IconButton(
-                              onPressed: () =>
-                                  _toggleFavorite(widget.chargerId, isFavorite),
-                              icon: Icon(
-                                isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                              ),
-                              color: Colors.red,
-                              iconSize: 30,
+                            FutureBuilder<List<String>>(
+                              future: _getFavorites(),
+                              builder: (context, favoritesSnapshot) {
+                                final isFavorite = favoritesSnapshot.data
+                                        ?.contains(widget.chargerId) ??
+                                    false;
+
+                                return FavoriteButton(
+                                  chargerId: widget.chargerId,
+                                  initialFavorite: isFavorite,
+                                );
+                              },
                             ),
                             IconButton(
                               onPressed: () => openLocation(
@@ -317,7 +261,7 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
                                 data['latitude'],
                                 data['longitude'],
                               ),
-                              icon: const Icon(Icons.location_on_outlined),
+                              icon: Icon(Icons.location_on_outlined),
                               color: Colors.green,
                               iconSize: 30,
                             ),
@@ -330,12 +274,6 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Connectors:',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
                         buildConnectorList(connectors, chargingStatus),
                       ],
                     ),
@@ -346,6 +284,142 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
           }
         },
       ),
+    );
+  }
+}
+
+class FavoriteButton extends StatefulWidget {
+  final String chargerId;
+  final bool initialFavorite;
+
+  const FavoriteButton({
+    Key? key,
+    required this.chargerId,
+    required this.initialFavorite,
+  }) : super(key: key);
+
+  @override
+  _FavoriteButtonState createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton> {
+  late bool isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.initialFavorite;
+    _refreshFavoriteStatus();
+  }
+
+  Future<void> _refreshFavoriteStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      setState(() {
+        isFavorite = false;
+      });
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> favorites = json.decode(response.body);
+      final favoriteIds =
+          favorites.map((favorite) => favorite['charger_id'].toString());
+      setState(() {
+        isFavorite = favoriteIds.contains(widget.chargerId);
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (isFavorite) {
+      await _removeFromFavorites(widget.chargerId);
+    } else {
+      await _addToFavorites(widget.chargerId);
+    }
+    _refreshFavoriteStatus();
+  }
+
+  Future<void> _addToFavorites(String chargerId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You need to log in first')),
+      );
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/api/favorites/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: json.encode({
+        'charger_id': chargerId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Charger added to favorites')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add to favorites')),
+      );
+    }
+  }
+
+  Future<void> _removeFromFavorites(String chargerId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You need to log in first')),
+      );
+      return;
+    }
+
+    final response = await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/api/favorites/$chargerId'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Charger removed from favorites')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove from favorites')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: _toggleFavorite,
+      icon: Icon(
+        isFavorite ? Icons.favorite : Icons.favorite_border,
+      ),
+      color: Colors.red,
+      iconSize: 30,
     );
   }
 }

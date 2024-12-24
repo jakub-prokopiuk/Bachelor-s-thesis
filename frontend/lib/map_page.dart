@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'list_view.dart';
 import 'filter_view.dart';
 import 'favorites_view.dart';
+import 'charger_details_view.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -70,6 +71,7 @@ class _MapPageState extends State<MapPage> {
       List<dynamic> data = json.decode(response.body);
       return data.map((charger) {
         return {
+          'id': charger['id'],
           'latitude': charger['latitude'],
           'longitude': charger['longitude'],
           'name': charger['name'],
@@ -206,11 +208,25 @@ class _MapPageState extends State<MapPage> {
                                   charger['latitude'], charger['longitude']),
                               width: 40.0,
                               height: 40.0,
-                              child: const Icon(Icons.location_on,
-                                  color: Colors.red),
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Przechodzimy do widoku szczegółów ładowarki
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChargerDetailsView(
+                                        chargerId: charger['id']
+                                            .toString(), // Przekazujemy ID ładowarki
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(Icons.location_on,
+                                    color: Colors.red),
+                              ),
                             );
                           }).toList(),
-                        ),
+                        )
                       ],
                     ),
           Positioned(
