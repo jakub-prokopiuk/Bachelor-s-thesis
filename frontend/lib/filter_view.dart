@@ -155,6 +155,7 @@ class _FilterWidgetState extends State<FilterWidget> {
                           minPower = (value / 10).roundToDouble() * 10;
                         });
                       },
+                      activeColor: Colors.green,
                     ),
                     Text(minPower.toStringAsFixed(0)),
                   ],
@@ -178,6 +179,7 @@ class _FilterWidgetState extends State<FilterWidget> {
                               : (value / 10).roundToDouble() * 10;
                         });
                       },
+                      activeColor: Colors.orange,
                     ),
                     Text(
                       maxPower == null ? '>100' : maxPower!.toStringAsFixed(0),
@@ -244,11 +246,21 @@ class _FilterWidgetState extends State<FilterWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                       child: const Text('Cancel'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.green,
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: Colors.green),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -262,9 +274,19 @@ class _FilterWidgetState extends State<FilterWidget> {
                         Navigator.of(context).pop();
                       },
                       child: const Text('Apply'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.green,
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: Colors.green),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
