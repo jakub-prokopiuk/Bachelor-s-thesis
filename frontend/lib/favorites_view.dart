@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'charger_details_view.dart';
+
 class Charger {
   final String id;
   final String name;
@@ -93,7 +95,7 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Favorite Chargers')),
+      appBar: AppBar(),
       body: FutureBuilder<List<Charger>>(
         future: _chargers,
         builder: (context, snapshot) {
@@ -121,10 +123,23 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
                       removeFromFavorites(charger);
                     },
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChargerDetailsView(
+                          chargerId: charger.id,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
               separatorBuilder: (context, index) {
-                return const Divider();
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Divider(),
+                );
               },
             );
           }

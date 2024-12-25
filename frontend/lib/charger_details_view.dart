@@ -127,7 +127,7 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
 
         final connectorTypeStatus = chargingStatus[dbValue] ?? {};
         final availability = connectorTypeStatus['available'] != null
-            ? (connectorTypeStatus['available'] == 1
+            ? (connectorTypeStatus['available'] > 1
                 ? 'Available'
                 : 'Not Available')
             : 'Status Unknown';

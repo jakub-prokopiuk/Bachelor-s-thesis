@@ -24,6 +24,7 @@ class _MapPageState extends State<MapPage> {
   List<Map<String, dynamic>> _chargers = [];
   List<Map<String, dynamic>> _searchResults = [];
   TextEditingController _searchController = TextEditingController();
+  late FocusNode _searchFocusNode;
 
   double? minPower;
   double? maxPower;
@@ -32,9 +33,17 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    _searchFocusNode = FocusNode();
     _getCurrentLocation();
     _mapController = MapController();
     _loadChargers();
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadChargers() async {
@@ -233,6 +242,7 @@ class _MapPageState extends State<MapPage> {
                         onTap: (_, __) {
                           setState(() {
                             _searchResults.clear();
+                            _searchController.clear();
                           });
                           FocusScope.of(context).unfocus();
                         },
@@ -277,50 +287,97 @@ class _MapPageState extends State<MapPage> {
             right: 16,
             child: Column(
               children: [
-                Opacity(
-                  opacity: 0.6,
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search for an address',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchResults.clear();
-                                });
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Colors.blue),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Opacity(
+                        opacity: 0.6,
+                        child: TextField(
+                          focusNode: _searchFocusNode,
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Search for an address',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() {
+                                        _searchResults.clear();
+                                      });
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 16),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(color: Colors.blue),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              _searchAddress(value);
+                            } else {
+                              setState(() {
+                                _searchResults.clear();
+                              });
+                            }
+                          },
+                        ),
                       ),
                     ),
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        _searchAddress(value);
-                      } else {
-                        setState(() {
-                          _searchResults.clear();
-                        });
-                      }
-                    },
-                  ),
+                    SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.filter_list),
+                        onPressed: _showFilterDialog,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.favorite_border_outlined),
+                        onPressed: _goToFavoritesPage,
+                      ),
+                    ),
+                  ],
                 ),
                 if (_searchResults.isNotEmpty)
                   Container(
@@ -365,32 +422,65 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
           Positioned(
-            right: 16,
             bottom: 16,
+            right: 16,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                FloatingActionButton(
-                    onPressed: _goToListPage, child: const Icon(Icons.list)),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  onPressed: _centerMapOnLocation,
-                  child: const Icon(Icons.my_location),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.list),
+                    onPressed: _goToListPage,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  onPressed: _resetMapOrientation,
-                  child: const Icon(Icons.rotate_left),
+                SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.my_location),
+                    onPressed: _centerMapOnLocation,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  onPressed: _showFilterDialog,
-                  child: const Icon(Icons.filter_list),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  onPressed: _goToFavoritesPage,
-                  child: const Icon(Icons.favorite),
+                SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.rotate_right),
+                    onPressed: _resetMapOrientation,
+                  ),
                 ),
               ],
             ),

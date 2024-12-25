@@ -306,15 +306,32 @@ class _ChargerListViewState extends State<ChargerListView> {
                       );
                     },
                     separatorBuilder: (context, index) {
-                      return const Divider();
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(),
+                      );
                     },
                   );
                 }
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showFilterDialog,
-        child: const Icon(Icons.filter_list),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.filter_list),
+          onPressed: _showFilterDialog,
+        ),
       ),
     );
   }
