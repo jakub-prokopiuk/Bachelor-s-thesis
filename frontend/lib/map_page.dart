@@ -233,7 +233,10 @@ class _MapPageState extends State<MapPage> {
           _locationError
               ? const Center(child: Text('Error fetching location'))
               : _currentLocation == null
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                      color: Colors.green,
+                    ))
                   : FlutterMap(
                       mapController: _mapController,
                       options: MapOptions(

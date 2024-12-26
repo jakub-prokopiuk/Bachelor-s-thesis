@@ -261,12 +261,18 @@ class _ChargerListViewState extends State<ChargerListView> {
     return Scaffold(
       appBar: AppBar(),
       body: userLatitude == null || userLongitude == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: Colors.green,
+            ))
           : FutureBuilder<List<Charger>>(
               future: _chargers,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.green,
+                  ));
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
