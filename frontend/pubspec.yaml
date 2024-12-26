@@ -77,6 +77,7 @@ flutter:
     - assets/icons/Type2.svg
     - assets/icons/Type3.svg
     - assets/images/wattway_logo.png
+    - assets/icons/pin.svg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
@@ -267,8 +268,8 @@ class _MapPageState extends State<MapPage> {
                                 charger['latitude'],
                                 charger['longitude'],
                               ),
-                              width: 40.0,
-                              height: 40.0,
+                              width: 30.0,
+                              height: 30.0,
                               child: GestureDetector(
                                 onTap: () {
                                   Navigator.push(
@@ -280,8 +281,11 @@ class _MapPageState extends State<MapPage> {
                                     ),
                                   );
                                 },
-                                child: const Icon(Icons.location_on,
-                                    color: Colors.red),
+                                child: SvgPicture.asset(
+                                  'assets/icons/pin.svg',
+                                  width: 40.0,
+                                  height: 40.0,
+                                ),
                               ),
                             );
                           }).toList(),

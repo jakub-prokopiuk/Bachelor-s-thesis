@@ -51,7 +51,7 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
     }
 
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
+      Uri.parse('${dotenv.env['API_URL']}/api/favorites/'),
       headers: {
         'Authorization': 'Bearer $accessToken',
       },
@@ -60,9 +60,9 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
     if (response.statusCode == 200) {
       String responseBody = utf8.decode(response.bodyBytes);
       List<dynamic> data = json.decode(responseBody);
-      List<Charger> chargers =
-          data.map((charger) => Charger.fromJson(charger)).toList();
-      return chargers;
+      return data.map((charger) => Charger.fromJson(charger)).toList();
+    } else if (response.statusCode == 404) {
+      return [];
     } else {
       throw Exception('Failed to load favorite chargers');
     }
@@ -101,13 +101,20 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-                child: CircularProgressIndicator(
-              color: Colors.green,
-            ));
+              child: CircularProgressIndicator(
+                color: Colors.green,
+              ),
+            );
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            print(snapshot.error);
+            return const Center(
+              child: Text(
+                  'Failed to load favorite chargers. Please try again later.'),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No favorite chargers'));
+            return const Center(
+              child: Text('You have no favorite chargers yet.'),
+            );
           } else {
             final chargers = snapshot.data!;
             return ListView.separated(
