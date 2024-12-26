@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'sign_up_page.dart';
+import 'map_page.dart'; // Import MapPage
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -21,10 +22,10 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                const Icon(
-                  Icons.flash_on,
-                  size: 120,
-                  color: Colors.white,
+                Image.asset(
+                  'assets/images/wattway_logo.png',
+                  width: 120,
+                  height: 120,
                 ),
                 const SizedBox(height: 40),
                 OutlinedButton(
@@ -44,7 +45,7 @@ class WelcomePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     side: const BorderSide(
-                      color: Colors.white, // Obramowanie w kolorze białym
+                      color: Colors.white,
                       width: 2,
                     ),
                   ),
@@ -77,6 +78,35 @@ class WelcomePage extends StatelessWidget {
                   ),
                   child: const Text(
                     'Login',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Nowy przycisk Continue without logging in
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const MapPage()), // Nawigacja do MapPage
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: const BorderSide(
+                      color: Colors.white,
+                      width: 2,
+                    ),
+                  ),
+                  child: const Text(
+                    'Maybe later',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

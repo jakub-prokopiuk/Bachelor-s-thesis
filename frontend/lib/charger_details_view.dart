@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ChargerDetailsView extends StatefulWidget {
   final String chargerId;
@@ -19,32 +20,32 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
   final List<Map<String, dynamic>> connectorTypes = [
     {
       'type': 'Type 2',
-      'icon': Icons.car_rental,
+      'icon': 'assets/icons/Type2.svg',
       'dbValue': 'IEC62196Type2CableAttached',
     },
     {
-      'type': 'Type 3',
-      'icon': Icons.electric_bolt,
-      'dbValue': 'IEC62196Type3',
-    },
-    {
       'type': 'Type 2 Outlet',
-      'icon': Icons.power,
+      'icon': 'assets/icons/Type2.svg',
       'dbValue': 'IEC62196Type2Outlet',
     },
     {
+      'type': 'Type 3',
+      'icon': 'assets/icons/Type3.svg',
+      'dbValue': 'IEC62196Type3',
+    },
+    {
       'type': 'Tesla',
-      'icon': Icons.car_repair,
+      'icon': 'assets/icons/Tesla.svg',
       'dbValue': 'Tesla',
     },
     {
       'type': 'Chademo',
-      'icon': Icons.car_crash,
+      'icon': 'assets/icons/Chademo.svg',
       'dbValue': 'Chademo',
     },
     {
       'type': 'CCS',
-      'icon': Icons.energy_savings_leaf,
+      'icon': 'assets/icons/CCS2.svg',
       'dbValue': 'IEC62196Type2CCS',
     },
   ];
@@ -85,10 +86,10 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
     return connector['type'];
   }
 
-  IconData getConnectorIcon(String dbValue) {
+  String getConnectorIcon(String dbValue) {
     final connector = connectorTypes.firstWhere(
       (type) => type['dbValue'] == dbValue,
-      orElse: () => {'icon': Icons.help},
+      orElse: () => {'icon': 'assets/icons/default.svg'},
     );
     return connector['icon'];
   }
@@ -123,7 +124,7 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
         final connector = connectors[index];
         final dbValue = connector['connector_type'];
         final type = getConnectorType(dbValue);
-        final icon = getConnectorIcon(dbValue);
+        final iconPath = getConnectorIcon(dbValue);
 
         final connectorTypeStatus = chargingStatus[dbValue] ?? {};
         final availability = connectorTypeStatus['available'] != null
@@ -139,7 +140,12 @@ class _ChargerDetailsViewState extends State<ChargerDetailsView> {
                 : Colors.grey;
 
         return ListTile(
-          leading: Icon(icon, color: Colors.blue),
+          leading: SvgPicture.asset(
+            iconPath,
+            colorFilter: ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+            width: 30,
+            height: 30,
+          ),
           title: Text(type),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -23,7 +23,7 @@ class _MapPageState extends State<MapPage> {
   late MapController _mapController;
   List<Map<String, dynamic>> _chargers = [];
   List<Map<String, dynamic>> _searchResults = [];
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   late FocusNode _searchFocusNode;
 
   double? minPower;
@@ -215,7 +215,11 @@ class _MapPageState extends State<MapPage> {
           },
         );
       },
-    );
+    ).whenComplete(() {
+      if (mounted) {
+        FocusScope.of(context).unfocus();
+      }
+    });
   }
 
   void _goToFavoritesPage() {
