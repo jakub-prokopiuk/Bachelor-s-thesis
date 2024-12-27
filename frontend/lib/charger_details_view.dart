@@ -316,6 +316,7 @@ class FavoriteButton extends StatefulWidget {
 
 class _FavoriteButtonState extends State<FavoriteButton> {
   late bool isFavorite;
+  late bool isLoggedIn;
 
   @override
   void initState() {
@@ -328,31 +329,41 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
 
-    if (accessToken == null) {
+    setState(() {
+      isLoggedIn = accessToken != null;
+    });
+
+    if (isLoggedIn) {
+      final response = await http.get(
+        Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> favorites = json.decode(response.body);
+        final favoriteIds =
+            favorites.map((favorite) => favorite['charger_id'].toString());
+        setState(() {
+          isFavorite = favoriteIds.contains(widget.chargerId);
+        });
+      }
+    } else {
       setState(() {
         isFavorite = false;
-      });
-      return;
-    }
-
-    final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> favorites = json.decode(response.body);
-      final favoriteIds =
-          favorites.map((favorite) => favorite['charger_id'].toString());
-      setState(() {
-        isFavorite = favoriteIds.contains(widget.chargerId);
       });
     }
   }
 
   Future<void> _toggleFavorite() async {
+    if (!isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You need to log in first')),
+      );
+      return;
+    }
+
     if (isFavorite) {
       await _removeFromFavorites(widget.chargerId);
     } else {
@@ -430,7 +441,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       icon: Icon(
         isFavorite ? Icons.favorite : Icons.favorite_border,
       ),
-      color: Colors.red,
+      color: isLoggedIn ? Colors.red : Colors.grey,
       iconSize: 30,
     );
   }

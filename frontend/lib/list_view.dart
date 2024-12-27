@@ -220,10 +220,20 @@ class _ChargerListViewState extends State<ChargerListView> {
   }
 
   Future<void> _toggleFavorite(String chargerId, bool isFavorite) async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You need to log in first')),
+      );
+      return;
+    }
+
     if (!isFavorite) {
-      await _removeFromFavorites(chargerId);
-    } else {
       await _addToFavorites(chargerId);
+    } else {
+      await _removeFromFavorites(chargerId);
     }
   }
 
@@ -291,13 +301,26 @@ class _ChargerListViewState extends State<ChargerListView> {
                             charger.isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: Colors.red,
+                            color: charger.isFavorite
+                                ? Colors.red
+                                : Colors
+                                    .grey, // Wyszarz ikonę, jeśli użytkownik nie jest zalogowany
                           ),
-                          onPressed: () {
-                            setState(() {
-                              charger.toggleFavorite();
-                            });
-                            _toggleFavorite(charger.id, charger.isFavorite);
+                          onPressed: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            final accessToken = prefs.getString('access_token');
+
+                            if (accessToken == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('You need to log in first')),
+                              );
+                            } else {
+                              setState(() {
+                                charger.toggleFavorite();
+                              });
+                              _toggleFavorite(charger.id, charger.isFavorite);
+                            }
                           },
                         ),
                         onTap: () {
