@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watt_way/sign_up_page.dart';
 import 'forgot_password.dart';
 import 'map_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -86,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
             colors: [
               Colors.orange,
               Colors.green,
-            ], // Pomarańczowy do zielonego
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -159,6 +160,23 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                     ),
                     const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignUpPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Don't have an account?",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(

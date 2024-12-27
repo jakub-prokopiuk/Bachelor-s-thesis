@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watt_way/map_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -66,6 +68,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sign Up Successful!')),
         );
+
+        await _login(username, password);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${responseBody['detail']}')),
@@ -79,6 +83,46 @@ class _SignUpPageState extends State<SignUpPage> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _login(String username, String password) async {
+    try {
+      final url = Uri.parse('${dotenv.env['API_URL']}/api/login');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+      final responseBody = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid username or password')),
+        );
+      } else if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = responseBody['access_token'];
+        await prefs.setString('access_token', accessToken);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MapPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${responseBody['detail']}')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
+      );
     }
   }
 

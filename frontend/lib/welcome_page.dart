@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
 import 'sign_up_page.dart';
-import 'map_page.dart'; // Import MapPage
+import 'map_page.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -82,14 +83,15 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Nowy przycisk Continue without logging in
                 OutlinedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('access_token');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              const MapPage()), // Nawigacja do MapPage
+                        builder: (context) => const MapPage(),
+                      ),
                     );
                   },
                   style: OutlinedButton.styleFrom(

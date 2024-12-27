@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'charger_details_view.dart';
+import 'login_page.dart';
 
 class Charger {
   final String id;
@@ -35,25 +36,30 @@ class FavoriteChargersView extends StatefulWidget {
 
 class _FavoriteChargersViewState extends State<FavoriteChargersView> {
   late Future<List<Charger>> _chargers;
+  String? _accessToken;
 
   @override
   void initState() {
     super.initState();
-    _chargers = fetchFavoriteChargers();
+    _loadAccessToken();
+  }
+
+  Future<void> _loadAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _accessToken = prefs.getString('access_token');
+    });
+
+    if (_accessToken != null) {
+      _chargers = fetchFavoriteChargers();
+    }
   }
 
   Future<List<Charger>> fetchFavoriteChargers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      return [];
-    }
-
     final response = await http.get(
       Uri.parse('${dotenv.env['API_URL']}/api/favorites/'),
       headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer $_accessToken',
       },
     );
 
@@ -69,17 +75,10 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
   }
 
   Future<void> removeFromFavorites(Charger charger) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      return;
-    }
-
     final response = await http.delete(
       Uri.parse('${dotenv.env['API_URL']}/api/favorites/${charger.id}'),
       headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer $_accessToken',
       },
     );
 
@@ -94,6 +93,52 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
 
   @override
   Widget build(BuildContext context) {
+    if (_accessToken == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'You should log in first to add chargers to favorites',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: const BorderSide(
+                    color: Colors.green,
+                    width: 2,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(),
       body: FutureBuilder<List<Charger>>(
@@ -106,7 +151,6 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
               ),
             );
           } else if (snapshot.hasError) {
-            print(snapshot.error);
             return const Center(
               child: Text(
                   'Failed to load favorite chargers. Please try again later.'),
