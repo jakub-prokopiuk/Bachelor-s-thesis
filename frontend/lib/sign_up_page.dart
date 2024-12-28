@@ -108,6 +108,8 @@ class _SignUpPageState extends State<SignUpPage> {
       } else if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         final accessToken = responseBody['access_token'];
+        final userId = responseBody['user_id'];
+        await prefs.setInt('user_id', userId);
         await prefs.setString('access_token', accessToken);
 
         Navigator.pushReplacement(

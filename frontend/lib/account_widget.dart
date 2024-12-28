@@ -8,7 +8,7 @@ import 'package:watt_way/login_page.dart';
 import 'package:watt_way/welcome_page.dart';
 
 class UserProfileWidget extends StatefulWidget {
-  final int userId;
+  final int? userId;
 
   const UserProfileWidget({super.key, required this.userId});
 
@@ -145,19 +145,25 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
+    print('Token: $token');
+
     setState(() {
-      _isLoggedIn = token != null && token.isNotEmpty;
+      if (token != null && token.isNotEmpty) {
+        _isLoggedIn = true;
+      } else {
+        _isLoggedIn = false;
+      }
     });
+
+    if (_isLoggedIn) {
+      _userData = fetchUserData();
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
-    if (_isLoggedIn) {
-      _userData = fetchUserData();
-    }
-    _passwordController.text = '●●●●●●●●';
   }
 
   @override
@@ -461,14 +467,11 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                                 ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                          height:
-                                              16), // Przerwa między przyciskami
-                                      // Przycisk Logout
+                                      const SizedBox(height: 16),
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.8, // 80% szerokości ekranu
+                                                0.8,
                                         child: OutlinedButton(
                                           onPressed: _logout,
                                           style: OutlinedButton.styleFrom(

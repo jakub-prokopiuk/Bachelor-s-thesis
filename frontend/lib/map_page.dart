@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'list_view.dart';
 import 'filter_view.dart';
@@ -231,8 +232,9 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  void _goToUserProfile() {
-    final userId = 7;
+  Future<void> _goToUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
     Navigator.push(
       context,
       MaterialPageRoute(
