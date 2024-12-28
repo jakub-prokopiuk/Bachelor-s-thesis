@@ -145,7 +145,6 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
-    print('Token: $token');
 
     setState(() {
       if (token != null && token.isNotEmpty) {
@@ -222,7 +221,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Hi ${_usernameController.text}, you are with us for $daysWithUs days',
+                                  'Hi ${_usernameController.text}, you are with us for $daysWithUs days!',
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                                 const SizedBox(height: 16),
@@ -354,11 +353,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      // Przycisk Delete Account
-                                      Container(
+                                      SizedBox(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.8, // 80% szerokości ekranu
+                                                0.8,
                                         child: OutlinedButton(
                                           onPressed: () async {
                                             bool? confirmDelete =
@@ -468,7 +466,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                         ),
                                       ),
                                       const SizedBox(height: 16),
-                                      Container(
+                                      SizedBox(
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.8,
@@ -484,14 +482,14 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                                   BorderRadius.circular(12),
                                             ),
                                             side: const BorderSide(
-                                              color: Colors.blue,
+                                              color: Colors.green,
                                               width: 2,
                                             ),
                                           ),
                                           child: const Text(
                                             'Logout',
                                             style:
-                                                TextStyle(color: Colors.blue),
+                                                TextStyle(color: Colors.green),
                                           ),
                                         ),
                                       ),
