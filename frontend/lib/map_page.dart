@@ -10,6 +10,7 @@ import 'list_view.dart';
 import 'filter_view.dart';
 import 'favorites_view.dart';
 import 'charger_details_view.dart';
+import 'account_widget.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -227,6 +228,16 @@ class _MapPageState extends State<MapPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FavoriteChargersView()),
+    );
+  }
+
+  void _goToUserProfile() {
+    final userId = 7;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfileWidget(userId: userId),
+      ),
     );
   }
 
@@ -494,6 +505,28 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.account_circle),
+                onPressed: _goToUserProfile,
+              ),
             ),
           ),
         ],

@@ -120,6 +120,9 @@ def get_user_by_username(db: Session, username: str):
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(User).filter(User.id == user_id).first()
+
 def create_user(db: Session, username: str, email: str, password: str):
     hashed_password = pwd_context.hash(password)
     user = User(username=username, email=email, hashed_password=hashed_password)
@@ -130,3 +133,17 @@ def create_user(db: Session, username: str, email: str, password: str):
 
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
+
+def update_user(session: Session, user_id: int, username: str = None, email: str = None, password: str = None):
+    user = session.query(User).filter(User.id == user_id).first()
+    if user:
+        if username:
+            user.username = username
+        if email:
+            user.email = email
+        if password:
+            user.hashed_password = pwd_context.hash(password)
+        session.commit()
+        session.refresh(user)
+        return user
+    return None
