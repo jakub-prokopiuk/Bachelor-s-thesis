@@ -3,21 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'filter_view.dart';
 import 'charger_details_view.dart';
+import 'favorite_button.dart';
 
 class Charger {
   final String id;
   final String name;
   final String freeformAddress;
-  bool isFavorite;
 
   Charger({
     required this.id,
     required this.name,
     required this.freeformAddress,
-    this.isFavorite = false,
   });
 
   factory Charger.fromJson(Map<String, dynamic> json) {
@@ -25,12 +23,7 @@ class Charger {
       id: json['id'].toString(),
       name: json['name'],
       freeformAddress: json['freeform_address'],
-      isFavorite: false,
     );
-  }
-
-  void toggleFavorite() {
-    isFavorite = !isFavorite;
   }
 }
 
@@ -116,124 +109,9 @@ class _ChargerListViewState extends State<ChargerListView> {
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      List<Charger> chargers =
-          data.map((charger) => Charger.fromJson(charger)).toList();
-
-      final favorites = await _getFavorites();
-      for (var charger in chargers) {
-        if (favorites.contains(charger.id)) {
-          charger.isFavorite = true;
-        }
-      }
-
-      return chargers;
+      return data.map((charger) => Charger.fromJson(charger)).toList();
     } else {
       throw Exception('Failed to load chargers');
-    }
-  }
-
-  Future<List<String>> _getFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      return [];
-    }
-
-    final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> favorites = json.decode(response.body);
-      return favorites
-          .map((favorite) => favorite['charger_id'].toString())
-          .toList();
-    } else {
-      return [];
-    }
-  }
-
-  Future<void> _addToFavorites(String chargerId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
-      return;
-    }
-
-    final response = await http.post(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: json.encode({
-        'charger_id': chargerId,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger added to favorites')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to favorites')),
-      );
-    }
-  }
-
-  Future<void> _removeFromFavorites(String chargerId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
-      return;
-    }
-
-    final response = await http.delete(
-      Uri.parse('${dotenv.env['API_URL']}/api/favorites/$chargerId'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger removed from favorites')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove from favorites')),
-      );
-    }
-  }
-
-  Future<void> _toggleFavorite(String chargerId, bool isFavorite) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
-      return;
-    }
-
-    if (!isFavorite) {
-      await _addToFavorites(chargerId);
-    } else {
-      await _removeFromFavorites(chargerId);
     }
   }
 
@@ -296,32 +174,10 @@ class _ChargerListViewState extends State<ChargerListView> {
                       return ListTile(
                         title: Text(charger.name),
                         subtitle: Text(charger.freeformAddress),
-                        trailing: IconButton(
-                          icon: Icon(
-                            charger.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: charger.isFavorite
-                                ? Colors.red
-                                : Colors
-                                    .grey, // Wyszarz ikonę, jeśli użytkownik nie jest zalogowany
-                          ),
-                          onPressed: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            final accessToken = prefs.getString('access_token');
-
-                            if (accessToken == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('You need to log in first')),
-                              );
-                            } else {
-                              setState(() {
-                                charger.toggleFavorite();
-                              });
-                              _toggleFavorite(charger.id, charger.isFavorite);
-                            }
-                          },
+                        trailing: FavoriteButton(
+                          chargerId: charger.id,
+                          initialFavorite: false,
+                          iconSize: 24,
                         ),
                         onTap: () {
                           Navigator.push(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watt_way/favorite_button.dart';
 
 import 'charger_details_view.dart';
 import 'login_page.dart';
@@ -180,14 +181,10 @@ class _FavoriteChargersViewState extends State<FavoriteChargersView> {
                 return ListTile(
                   title: Text(charger.name),
                   subtitle: Text(charger.freeformAddress),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                    ),
-                    onPressed: () {
-                      removeFromFavorites(charger);
-                    },
+                  trailing: FavoriteButton(
+                    chargerId: charger.id,
+                    initialFavorite: true,
+                    iconSize: 24.0,
                   ),
                   onTap: () {
                     Navigator.push(
