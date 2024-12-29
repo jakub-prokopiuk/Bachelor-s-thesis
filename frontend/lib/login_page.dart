@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cool_snackbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,9 +25,10 @@ class _LoginPageState extends State<LoginPage> {
     String password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username and password are required')),
-      );
+      CoolSnackbar.show(context,
+          message: "Username and password are required",
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
       return;
     }
 
@@ -49,9 +51,10 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (response.statusCode == 401) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid username or password')),
-        );
+        CoolSnackbar.show(context,
+            message: "Invalid username or password",
+            backgroundColor: Colors.redAccent,
+            icon: Icons.error);
       } else if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         final accessToken = responseBody['access_token'];
@@ -65,14 +68,16 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const MapPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${responseBody['detail']}')),
-        );
+        CoolSnackbar.show(context,
+            message: '${responseBody['detail']}',
+            backgroundColor: Colors.redAccent,
+            icon: Icons.error);
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $error')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Error: $error',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
     } finally {
       setState(() {
         _isLoading = false;

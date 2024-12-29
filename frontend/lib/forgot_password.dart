@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:watt_way/cool_snackbar.dart';
 
 void main() async {
   await dotenv.load();
@@ -36,9 +37,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     String email = _emailController.text;
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email is required')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Email is required',
+          backgroundColor: Colors.orangeAccent,
+          icon: Icons.warning);
       return;
     }
 
@@ -53,13 +55,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent!')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Password reset email sent',
+          backgroundColor: Colors.green,
+          icon: Icons.check);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response.body}')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Error: ${response.body}',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
     }
 
     setState(() {

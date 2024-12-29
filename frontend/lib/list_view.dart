@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:watt_way/cool_snackbar.dart';
 import 'filter_view.dart';
 import 'charger_details_view.dart';
 import 'favorite_button.dart';
@@ -74,9 +75,10 @@ class _ChargerListViewState extends State<ChargerListView> {
         _chargers = fetchChargers(userLatitude, userLongitude);
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Error: $e',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watt_way/cool_snackbar.dart';
 import 'dart:convert';
 import 'list_view.dart';
 import 'filter_view.dart';
@@ -114,9 +115,10 @@ class _MapPageState extends State<MapPage> {
         });
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are denied')),
-          );
+          CoolSnackbar.show(context,
+              message: 'Location permissions are denied',
+              backgroundColor: Colors.orangeAccent,
+              icon: Icons.warning);
         }
         return;
       }

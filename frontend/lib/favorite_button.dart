@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cool_snackbar.dart';
 
 class FavoriteButton extends StatefulWidget {
   final String chargerId;
@@ -64,9 +65,10 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 
   Future<void> _toggleFavorite() async {
     if (!isLoggedIn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
+      CoolSnackbar.show(context,
+          message: 'You need to log in first',
+          backgroundColor: Colors.orangeAccent,
+          icon: Icons.warning);
       return;
     }
 
@@ -83,9 +85,6 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     final accessToken = prefs.getString('access_token');
 
     if (accessToken == null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
       return;
     }
 
@@ -101,13 +100,15 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger added to favorites')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Charger added to favorites',
+          backgroundColor: Colors.green,
+          icon: Icons.check);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to favorites')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Failed to add to favorites',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
     }
   }
 
@@ -116,9 +117,10 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     final accessToken = prefs.getString('access_token');
 
     if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You need to log in first')),
-      );
+      CoolSnackbar.show(context,
+          message: 'You need to log in first',
+          backgroundColor: Colors.orangeAccent,
+          icon: Icons.error);
       return;
     }
 
@@ -130,13 +132,15 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Charger removed from favorites')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Charger removed from favorites',
+          backgroundColor: Colors.green,
+          icon: Icons.check);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove from favorites')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Failed to remove from favorites',
+          backgroundColor: Colors.red,
+          icon: Icons.error);
     }
   }
 

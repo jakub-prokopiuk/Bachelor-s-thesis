@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watt_way/login_page.dart';
 import 'package:watt_way/welcome_page.dart';
+import 'cool_snackbar.dart';
 
 class UserProfileWidget extends StatefulWidget {
   final int? userId;
@@ -49,21 +50,22 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
   Future<bool> _saveChanges(String field, String newValue) async {
     if (field == 'password' && newValue.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password must be at least 8 characters long')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Password must be at least 8 characters long',
+          backgroundColor: Colors.orangeAccent,
+          icon: Icons.warning);
       return false;
     } else if (field == 'email' && !newValue.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid email address')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Invalid email address',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
       return false;
     } else if (field == 'username' && newValue.length > 50) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Username must be less than 50 characters long')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Username must be less than 50 characters long',
+          backgroundColor: Colors.orangeAccent,
+          icon: Icons.warning);
       return false;
     }
 
@@ -75,9 +77,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     );
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Changes saved successfully')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Changes saved successfully',
+          backgroundColor: Colors.green,
+          icon: Icons.check);
 
       setState(() {
         if (field == 'username') {
@@ -89,9 +92,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
       return true;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save changes')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Failed to save changes',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
       return false;
     }
   }
@@ -113,18 +117,20 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('access_token');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account deleted successfully')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Account deleted successfully',
+          backgroundColor: Colors.green,
+          icon: Icons.check);
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const WelcomePage()),
         (Route<dynamic> route) => false,
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete account')),
-      );
+      CoolSnackbar.show(context,
+          message: 'Failed to delete account',
+          backgroundColor: Colors.redAccent,
+          icon: Icons.error);
     }
   }
 
@@ -132,9 +138,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Logged out successfully')),
-    );
+    CoolSnackbar.show(context,
+        message: 'Logged out successfully',
+        backgroundColor: Colors.green,
+        icon: Icons.check);
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const WelcomePage()),
