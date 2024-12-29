@@ -1,13 +1,16 @@
 # Bachelor's Thesis
 
-This repository contains the code and documentation for my Bachelor's thesis project.
+This repository contains the code and documentation for my Bachelor's thesis project which is a mobile app for EV chargers.
 
 ## Project Overview
 
-The goal of this project is to create a mobile app that will allow user to check EV chargers status on the map and navigate to it.
+The goal of this project is to create a mobile app that will allow user to check EV chargers locations and availability. The app is developed using Flutter for the frontend and FastAPI for the backend.
 
 ## Table of Contents
 - [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the application](#running-the-application)
+- [Information](#information)
 
 ## Installation
 
@@ -17,7 +20,7 @@ To install and run this project, follow these steps:
     ```bash
     git clone https://github.com/yourusername/your-repo-name.git
     ```
-2. Navigate to the backend of project:
+2. Navigate to the backend directory of this project:
     ```bash
     cd Bachelor-s-thesis/backend
     ```
@@ -33,22 +36,42 @@ To install and run this project, follow these steps:
     ```bash
     pip install -r requirements.txt
     ```
-6. Run the backend:
-    ```bash
-    uvicorn app.main:app --reload
-    ```
-7. In another terminal, navigate to the frontend of project:
+6. Ensure you have Flutter installed. If not, follow the instructions [here](https://flutter.dev/docs/get-started/install).
+
+7. Install the frontend dependencies:
     ```bash
     cd ../frontend
-    ```
-8. Ensure you have Flutter installed. If not, follow the instructions [here](https://flutter.dev/docs/get-started/install).
-
-9. Install the Flutter dependencies:
-    ```bash
     flutter pub get
     ```
 
-9. Run the Flutter app:
+## Configuration
+
+To configure the application, follow these steps:
+1. Create a `.env` file in the frontend directory and add the following environment variable:
+    ```bash
+    API_URL=http://localhost:8000
+    ```
+2. Create a `.env` file in the backend directory and add the following environment variables:
+    ```bash
+    API_KEY=<YOUR_TOMTOM_API_KEY>
+    DATABASE_URL = <YOUR_DATABASE_URL>
+    SECRET_KEY = <SECRET_KEY_FOR_JWT>
+    ALGORITHM = <ALGORITHM_FOR_JWT> 
+    ACCESS_TOKEN_EXPIRE_MINUTES = <TIME_FOR_JWT_EXPIRATION>
+    SENDER_EMAIL = <EMAIL_FOR_SENDING_EMAILS_TO_USERS>
+    SENDER_SMTP = <YOUR_MAIL_SMTP_SERVER>
+    SENDER_PASSWORD = <YOUR_MAIL_PASSWORD>
+    ```
+## Running the application
+
+1. Navigate to the frontend directory and run the Flutter app:
     ```bash
     flutter run
     ```
+2. In another terminal window run the backend from backend directory:
+    ```bash
+    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    ```
+
+## Information
+Your backend server should be running on `http://localhost:8000` and the frontend app should be running on your emulator or physical device (I recommend physical device for better performance).
