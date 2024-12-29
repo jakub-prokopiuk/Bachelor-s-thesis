@@ -134,7 +134,7 @@ def create_user(db: Session, username: str, email: str, password: str):
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
-def update_user(session: Session, user_id: int, username: str = None, email: str = None, password: str = None):
+def update_user_data(session: Session, user_id: int, username: str = None, email: str = None, password: str = None):
     user = session.query(User).filter(User.id == user_id).first()
     if user:
         if username:

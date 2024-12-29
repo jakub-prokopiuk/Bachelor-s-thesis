@@ -8,7 +8,7 @@ class UpdateUserRequest(BaseModel):
     password: Optional[str] = Field(None, min_length=8)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserResponse(BaseModel):
@@ -17,4 +17,7 @@ class UserResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr

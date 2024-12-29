@@ -1,4 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+void main() async {
+  await dotenv.load();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Forgot Password',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      home: const ForgotPassword(),
+    );
+  }
+}
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -25,15 +46,21 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       _isLoading = true;
     });
 
-    // TODO: Add connection to the database
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password reset email sent!')),
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/api/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
     );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${response.body}')),
+      );
+    }
 
     setState(() {
       _isLoading = false;
