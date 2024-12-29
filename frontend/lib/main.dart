@@ -24,8 +24,22 @@ class WattWay extends StatelessWidget {
     return MaterialApp(
       title: 'WattWay',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          focusColor: Colors.green,
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          labelStyle: const TextStyle(color: Colors.grey),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green),
+          ),
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.orange,
+          selectionColor: Colors.green.withOpacity(0.4),
+          selectionHandleColor: Colors.orange.withOpacity(0.8),
+        ),
       ),
       themeMode: ThemeMode.system,
       home: accessToken == null ? const WelcomePage() : const MapPage(),
