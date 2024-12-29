@@ -464,7 +464,7 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.list),
+                    icon: const Icon(Icons.list_outlined),
                     onPressed: _goToListPage,
                   ),
                 ),
@@ -483,7 +483,7 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.my_location),
+                    icon: const Icon(Icons.my_location_outlined),
                     onPressed: _centerMapOnLocation,
                   ),
                 ),
@@ -502,7 +502,7 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.rotate_right),
+                    icon: const Icon(Icons.rotate_right_outlined),
                     onPressed: _resetMapOrientation,
                   ),
                 ),
@@ -526,7 +526,7 @@ class _MapPageState extends State<MapPage> {
                 ],
               ),
               child: IconButton(
-                icon: const Icon(Icons.account_circle),
+                icon: const Icon(Icons.account_circle_outlined),
                 onPressed: _goToUserProfile,
               ),
             ),
