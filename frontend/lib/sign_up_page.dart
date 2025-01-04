@@ -84,6 +84,7 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       }
     } catch (error) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $error')),
       );
@@ -119,7 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
         final userId = responseBody['user_id'];
         await prefs.setInt('user_id', userId);
         await prefs.setString('access_token', accessToken);
-
+        if(!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MapPage()),

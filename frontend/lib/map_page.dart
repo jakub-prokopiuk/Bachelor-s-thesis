@@ -237,6 +237,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> _goToUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -247,6 +248,9 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
+    });
     return Scaffold(
       body: Stack(
         children: [
@@ -504,7 +508,7 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.rotate_right_outlined),
+                    icon: const Icon(Icons.explore_outlined),
                     onPressed: _resetMapOrientation,
                   ),
                 ),

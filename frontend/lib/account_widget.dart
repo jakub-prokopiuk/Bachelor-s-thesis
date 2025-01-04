@@ -14,10 +14,10 @@ class UserProfileWidget extends StatefulWidget {
   const UserProfileWidget({super.key, required this.userId});
 
   @override
-  _UserProfileWidgetState createState() => _UserProfileWidgetState();
+  UserProfileWidgetState createState() => UserProfileWidgetState();
 }
 
-class _UserProfileWidgetState extends State<UserProfileWidget> {
+class UserProfileWidgetState extends State<UserProfileWidget> {
   late Future<Map<String, dynamic>> _userData;
 
   final TextEditingController _usernameController = TextEditingController();
@@ -76,6 +76,8 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       body: json.encode({field: newValue}),
     );
 
+    if (!mounted) return false;
+
     if (response.statusCode == 200) {
       CoolSnackbar.show(context,
           message: 'Changes saved successfully',
@@ -117,6 +119,8 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('access_token');
 
+      if (!mounted) return;
+
       CoolSnackbar.show(context,
           message: 'Account deleted successfully',
           backgroundColor: Colors.green,
@@ -127,6 +131,8 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         (Route<dynamic> route) => false,
       );
     } else {
+      if (!mounted) return;
+
       CoolSnackbar.show(context,
           message: 'Failed to delete account',
           backgroundColor: Colors.redAccent,
@@ -137,7 +143,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
-
+    if (!mounted) return;
     CoolSnackbar.show(context,
         message: 'Logged out successfully',
         backgroundColor: Colors.green,

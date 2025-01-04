@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
 
         await prefs.setString('access_token', accessToken);
         await prefs.setInt('user_id', userId);
-
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MapPage()),

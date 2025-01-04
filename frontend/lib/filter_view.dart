@@ -5,10 +5,10 @@ class FilterScreen extends StatefulWidget {
   const FilterScreen({super.key});
 
   @override
-  _FilterScreenState createState() => _FilterScreenState();
+  FilterScreenState createState() => FilterScreenState();
 }
 
-class _FilterScreenState extends State<FilterScreen> {
+class FilterScreenState extends State<FilterScreen> {
   double minPower = 0;
   double? maxPower;
   List<String> selectedConnectorTypes = [];
@@ -75,10 +75,10 @@ class FilterWidget extends StatefulWidget {
   });
 
   @override
-  _FilterWidgetState createState() => _FilterWidgetState();
+  FilterWidgetState createState() => FilterWidgetState();
 }
 
-class _FilterWidgetState extends State<FilterWidget> {
+class FilterWidgetState extends State<FilterWidget> {
   late double minPower;
   late double? maxPower;
   late List<String> selectedConnectorTypes;

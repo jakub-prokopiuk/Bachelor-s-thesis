@@ -75,6 +75,7 @@ class _ChargerListViewState extends State<ChargerListView> {
         _chargers = fetchChargers(userLatitude, userLongitude);
       });
     } catch (e) {
+      if (!mounted) return;
       CoolSnackbar.show(context,
           message: 'Error: $e',
           backgroundColor: Colors.redAccent,

@@ -10,6 +10,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,7 +55,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),
     );
-
+    if(!mounted) return;
     if (response.statusCode == 200) {
       CoolSnackbar.show(context,
           message: 'Password reset email sent',

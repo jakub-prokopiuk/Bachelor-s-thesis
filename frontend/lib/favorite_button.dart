@@ -18,10 +18,10 @@ class FavoriteButton extends StatefulWidget {
   });
 
   @override
-  _FavoriteButtonState createState() => _FavoriteButtonState();
+  FavoriteButtonState createState() => FavoriteButtonState();
 }
 
-class _FavoriteButtonState extends State<FavoriteButton> {
+class FavoriteButtonState extends State<FavoriteButton> {
   late bool isFavorite;
   late bool isLoggedIn = false;
 
@@ -98,7 +98,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         'charger_id': chargerId,
       }),
     );
-
+    if(!mounted) return;
     if (response.statusCode == 200) {
       CoolSnackbar.show(context,
           message: 'Charger added to favorites',
@@ -115,7 +115,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   Future<void> _removeFromFavorites(String chargerId) async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
-
+    if(!mounted) return;
     if (accessToken == null) {
       CoolSnackbar.show(context,
           message: 'You need to log in first',
@@ -130,7 +130,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         'Authorization': 'Bearer $accessToken',
       },
     );
-
+    if(!mounted) return;
     if (response.statusCode == 200) {
       CoolSnackbar.show(context,
           message: 'Charger removed from favorites',
