@@ -47,9 +47,14 @@ To install and run this project, follow these steps:
 ## Configuration
 
 To configure the application, follow these steps:
+1. Check your IP address by running:
+    ```bash
+    ifconfig
+    ```
+    You will need this address to configure the backend server.
 1. Create a `.env` file in the frontend directory and add the following environment variable:
     ```bash
-    API_URL=http://localhost:8000
+    API_URL=<YOUR_IFCONFIG_IP_ADDRESS>:8000
     ```
 2. Create a `.env` file in the backend directory and add the following environment variables:
     ```bash
@@ -75,3 +80,14 @@ To configure the application, follow these steps:
 
 ## Information
 Your backend server should be running on `http://localhost:8000` and the frontend app should be running on your emulator or physical device (I recommend physical device for better performance).
+
+## Creating local database
+1. Create a local database by running the following command with active virtual environment:
+    ```bash
+    python3 backend/scripts/create_db.py
+    ```
+    This should create a local database with the name `ev_chargers.db` in the backend directory.
+2. To populate the database with data, run the following command:
+    ```bash
+    PYTHONPATH=$(pwd) python3 backend/scripts/update_db.py
+    ```
