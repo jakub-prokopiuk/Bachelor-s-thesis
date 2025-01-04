@@ -61,6 +61,12 @@ To configure the application, follow these steps:
     ```bash
     API_KEY=<YOUR_TOMTOM_API_KEY>
     DATABASE_URL = <YOUR_DATABASE_URL>
+    ```
+    If you want to use local database, you should use the following URL:
+    ```bash
+    DATABASE_URL = sqlite:///ev_chargers.db
+    ```
+    ```bash
     SECRET_KEY = <SECRET_KEY_FOR_JWT>
     ALGORITHM = <ALGORITHM_FOR_JWT> 
     ACCESS_TOKEN_EXPIRE_MINUTES = <TIME_FOR_JWT_EXPIRATION>
@@ -91,4 +97,10 @@ Your backend server should be running on `http://localhost:8000` and the fronten
 2. To populate the database with data, run the following command:
     ```bash
     PYTHONPATH=$(pwd) python3 backend/scripts/update_db.py
+    ```
+
+## Running tests
+1. To run tests for the backend, navigate to the backend directory and run the following command:
+    ```bash
+    pytest
     ```

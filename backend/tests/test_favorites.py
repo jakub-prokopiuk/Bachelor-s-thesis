@@ -7,8 +7,8 @@ client = TestClient(app)
 @pytest.fixture
 def access_token():
     login_response = client.post("/api/login", json={
-        "username": "exampleUser",
-        "password": "examplePassword"
+        "username": "testuser",
+        "password": "password123"
     })
     assert login_response.status_code == 200
     token = login_response.json().get("access_token")
