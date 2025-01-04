@@ -4,3 +4,4 @@
 .venv/
 **/http/
 **/.env
+ev_chargers.db
