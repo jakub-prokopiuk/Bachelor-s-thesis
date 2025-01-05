@@ -75,6 +75,10 @@ To configure the application, follow these steps:
     SENDER_SMTP = <YOUR_MAIL_SMTP_SERVER>
     SENDER_PASSWORD = <YOUR_MAIL_PASSWORD>
     ```
+3. To populate the database with data, run the following command:
+    ```bash
+    PYTHONPATH=$(pwd) python3 backend/scripts/update_db.py
+    ```
 ## Running the application
 
 1. Navigate to the frontend directory and run the Flutter app:
@@ -90,15 +94,11 @@ To configure the application, follow these steps:
 Your backend server should be running on `http://localhost:8000` and the frontend app should be running on your emulator or physical device (I recommend physical device for better performance).
 
 ## Creating local database
-1. Create a local database by running the following command with active virtual environment:
+Create a local database by running the following command with active virtual environment:
     ```bash
     python3 backend/scripts/create_db.py
     ```
     This should create a local database with the name `ev_chargers.db` in the backend directory.
-2. To populate the database with data, run the following command:
-    ```bash
-    PYTHONPATH=$(pwd) python3 backend/scripts/update_db.py
-    ```
 
 ## Running tests
 1. To run tests for the backend, navigate to the backend directory and run the following command:
