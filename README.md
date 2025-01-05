@@ -12,6 +12,7 @@ The goal of this project is to create a mobile app that will allow user to check
 - [Running the application](#running-the-application)
 - [Information](#information)
 - [Creating local database](#creating-local-database)
+- [Running tests](#running-tests)
 
 ## Installation
 
