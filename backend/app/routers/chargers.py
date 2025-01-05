@@ -38,7 +38,7 @@ def get_chargers(
     user_longitude: Optional[float] = None,
     min_power: float = Query(None, description="Minimal power of the connector (in kW)"),
     max_power: float = Query(None, description="Maximal power of the connector (in kW)"),
-    connector_types: str = Query(None, description="Comma-separated list of connector types (e.g., 'Type2,CCS,CHAdeMO')"),
+    connector_types: str = Query(None, description="Comma-separated list of connector types (e.g., 'IEC62196Type2CCS, IEC62196Type3, Chademo')"),
     db: Session = Depends(get_db)
 ):
     query = db.query(EVCharger)

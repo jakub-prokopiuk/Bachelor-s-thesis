@@ -103,6 +103,7 @@ class _MapPageState extends State<MapPage> {
       if (!serviceEnabled) {
         setState(() {
           _locationError = true;
+          _currentLocation = LatLng(52.0, 19.0);
         });
         return;
       }
@@ -112,6 +113,7 @@ class _MapPageState extends State<MapPage> {
           permission == LocationPermission.deniedForever) {
         setState(() {
           _locationError = true;
+          _currentLocation = LatLng(52.0, 19.0);
         });
 
         if (mounted) {
@@ -138,6 +140,7 @@ class _MapPageState extends State<MapPage> {
       if (mounted) {
         setState(() {
           _locationError = true;
+          _currentLocation = LatLng(52.0, 19.0);
         });
       }
     }

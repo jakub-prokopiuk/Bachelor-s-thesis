@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Ustalamy bazę
 Base = declarative_base()
 
 class EVCharger(Base):
