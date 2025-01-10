@@ -60,4 +60,4 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error sending email")
 
-    return {"message": "Password reset successfully, email sent."}
+    return {"message": "Password reset successful, email sent."}
