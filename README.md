@@ -56,7 +56,7 @@ To configure the application, follow these steps:
     You will need this address to configure the backend server.
 1. Create a `.env` file in the frontend directory and add the following environment variable:
     ```bash
-    API_URL=<YOUR_IFCONFIG_IP_ADDRESS>:8000
+    API_URL=http://<YOUR_IFCONFIG_IP_ADDRESS>:8000
     ```
 2. Create a `.env` file in the backend directory and add the following environment variables:
     ```bash
